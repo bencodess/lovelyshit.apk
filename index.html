@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>Powered by ben.dev</title>
+
+<style>
+  :root {
+    --wa-green:#1446cf;
+    --wa-dark:#000000;
+    --bg:#000000;
+    --card:#363636;
+    --text:#ffffff;
+  }
+
+  html, body {
+    height:100%;
+    margin:0;
+    padding:0;
+    overflow:hidden;
+    background:var(--bg);
+    font-family:system-ui,Roboto,Arial;
+  }
+
+  .center {
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    box-sizing:border-box;
+  }
+
+  .box {
+    width:100%;
+    max-width:380px;
+    background:var(--card);
+    padding:25px;
+    border-radius:14px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.12);
+    text-align:center;
+  }
+
+  h2 {
+    font-size:20px;
+    margin:0 0 10px 0;
+    color:var(--text);
+    font-weight:700;
+  }
+
+  p {
+    font-size:14px;
+    color:#555;
+    margin:0 0 15px 0;
+  }
+
+  label {
+    display:block;
+    text-align:left;
+    font-size:14px;
+    font-weight:600;
+    margin-top:14px;
+    margin-bottom:6px;
+    color:#333;
+  }
+
+  input {
+    width:100%;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid #00000000;
+    font-size:15px;
+    box-sizing:border-box;
+  }
+
+  button {
+    width:100%;
+    margin-top:18px;
+    background:var(--wa-green);
+    color:rgb(255, 255, 255);
+    border:none;
+    padding:12px;
+    border-radius:10px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+  }
+
+  #result {
+    display:none;
+    margin-top:16px;
+    padding:12px;
+    background:#ff00009c;
+    border:1px solid #000000;
+    color:#ffffff;
+    border-radius:10px;
+    font-size:14px;
+  }
+
+  footer {
+    margin-top:16px;
+    font-size:12px;
+    color:#f5f5f5;
+  }
+</style>
+</head>
+
+<body>
+<div class="center">
+
+  <div class="box">
+
+    <h2>Banne eine Nummer von WhatsApp</h2>
+    <p>powered by ben.dev</p>
+
+    <label>Telefonnummer</label>
+    <input id="phone" type="tel" placeholder="+49 170 1234567">
+
+    <label>Passwort</label>
+    <input id="pw" type="password" placeholder="Passwort">
+
+    <button id="checkBtn">Überprüfen</button>
+
+    <div id="result"></div>
+
+    <footer>by ben.dev</footer>
+  </div>
+
+</div>
+
+<script>
+  const btn = document.getElementById("checkBtn");
+  const phone = document.getElementById("phone");
+  const pw = document.getElementById("pw");
+  const result = document.getElementById("result");
+
+  const PASS = "64826482B@n";
+
+  document.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
+
+  btn.onclick = () => {
+    result.style.display = "block";
+
+    if (!phone.value.trim() || !pw.value.trim()) {
+      result.textContent = "Bitte Telefonnummer und Passwort eingeben.";
+      return;
+    }
+
+    if (pw.value === PASS) {
+      result.textContent = "Gebannt! Die Nummer " + phone.value + " wurde von WhatsApp gebannt.";
+    } else {
+      result.textContent = "Falsches Passwort.";
+    }
+  };
+</script>
+
+</body>
+</html>
