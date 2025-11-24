@@ -8,8 +8,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # set SDK root inside workspace to avoid runner.* expression issues
     env:
-      ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
+      ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
 
     steps:
     - name: Checkout
@@ -21,11 +22,12 @@ jobs:
         distribution: 'temurin'
         java-version: '11'
 
-    - name: Install Gradle (to create wrapper if missing)
+    - name: Install prerequisites
       run: |
         sudo apt-get update
-        sudo apt-get install -y gradle unzip wget
-
+        sudo apt-get install -y unzip wget
+        # gradle is optional; used only to create wrapper if missing
+        sudo apt-get install -y gradle
     - name: Ensure Gradle wrapper
       run: |
         if [ ! -f ./gradlew ]; then
@@ -38,15 +40,17 @@ jobs:
         mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
         wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O /tmp/cmdline-tools.zip
         unzip -q /tmp/cmdline-tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools
-        # move extracted folder to "latest" as expected layout
         mkdir -p $ANDROID_SDK_ROOT/cmdline-tools/latest
         mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools/* $ANDROID_SDK_ROOT/cmdline-tools/latest/
+      env:
+        ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
 
     - name: Accept licenses & install SDK packages
       run: |
         yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "platforms;33" "build-tools;33.0.2"
       env:
-        PATH: ${{ env.ANDROID_SDK_ROOT }}/cmdline-tools/latest/bin:${{ env.ANDROID_SDK_ROOT }}/platform-tools:$PATH
+        ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+        PATH: ${{ env.ANDROID_SDK_ROOT }}/cmdline-tools/latest/bin:${{ env.ANDROID_SDK_ROOT }}/platform-tools:${{ env.PATH }}
 
     - name: Build Debug APK
       run: |
