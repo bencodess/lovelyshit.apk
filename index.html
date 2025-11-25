@@ -103,6 +103,18 @@
     font-size:12px;
     color:#f5f5f5;
   }
+
+  /* small helper styles for validation messages */
+  .ok {
+    background: rgba(34,197,94,0.12);
+    color: #22c55e;
+    border: 1px solid rgba(34,197,94,0.06);
+  }
+  .err {
+    background: rgba(255,92,124,0.08);
+    color: #ff5c7c;
+    border: 1px solid rgba(255,92,124,0.06);
+  }
 </style>
 </head>
 
@@ -115,14 +127,14 @@
     <p>powered by ben.dev</p>
 
     <label>Telefonnummer</label>
-    <input id="phone" type="tel" placeholder="+49 170 1234567">
+    <input id="phone" type="tel" placeholder="+49 170 1234567" autocomplete="tel">
 
     <label>Passwort</label>
     <input id="pw" type="password" placeholder="Passwort">
 
     <button id="checkBtn">Überprüfen</button>
 
-    <div id="result"></div>
+    <div id="result" role="status" aria-live="polite"></div>
 
     <footer>by ben.dev</footer>
   </div>
@@ -139,20 +151,54 @@
 
   document.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
 
+  // Beim Tippen erlauben wir nur Ziffern, Leerzeichen, Klammern, Bindestriche und ein führendes +
+  phone.addEventListener('input', () => {
+    let v = phone.value || "";
+    // Entferne alle Zeichen außer Ziffern und +, Klammern, Leerzeichen und Bindestrich
+    v = v.replace(/[^\d+\s()-]/g, '');
+
+    // Stelle sicher, dass nur ein führendes + existiert (wenn vorhanden, bleibt es am Anfang)
+    const hasPlus = /^\+/.test(v);
+    const digitsOnly = v.replace(/\+/g, '');
+    // Entferne weitere +'s (falls irgendwo im String)
+    const cleanedDigits = digitsOnly.replace(/[^\d\s()-]/g, '');
+    phone.value = (hasPlus ? '+' : '') + cleanedDigits;
+  });
+
   btn.onclick = () => {
     result.style.display = "block";
+    result.className = ""; // reset classes
 
     if (!phone.value.trim() || !pw.value.trim()) {
+      result.classList.add('err');
       result.textContent = "Bitte Telefonnummer und Passwort eingeben.";
       return;
     }
 
+    // Normalisieren: entferne Leerzeichen, Klammern und Bindestriche
+    const normalized = phone.value.replace(/[\s()-]/g, '');
+
+    // Validierung: muss mit +49 beginnen und danach maximal 13 Ziffern (also +49 gefolgt von 0-13 Ziffern? -> hier: mindestens 1 Ziffer)
+    // Muster: +49 gefolgt von 1 bis 13 Ziffern
+    const pattern = /^\+49\d{1,13}$/;
+
+    if (!pattern.test(normalized)) {
+      result.classList.add('err');
+      result.textContent = "Ungültige Nummer. Die Nummer muss mit +49 beginnen und darf bis zu 13 Ziffern nach der Landesvorwahl haben (z.B. +491701234567).";
+      return;
+    }
+
     if (pw.value === PASS) {
-      result.textContent = "Gebannt! Die Nummer " + phone.value + " wurde von WhatsApp gebannt.";
+      result.classList.add('ok');
+      result.textContent = "Gebannt! Die Nummer " + normalized + " wurde von WhatsApp gebannt.";
     } else {
+      result.classList.add('err');
       result.textContent = "Falsches Passwort.";
     }
   };
+
+  // Enter im Passwortfeld auslösen
+  pw.addEventListener("keydown", (e) => { if (e.key === "Enter") btn.click(); });
 </script>
 
 </body>
